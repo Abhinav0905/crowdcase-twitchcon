@@ -1,8 +1,12 @@
 # CrowdCase
 
+![CrowdCase: good catch, keep the test](docs/images/cover.png)
+
 **Good catch. Keep the test.**
 
 CrowdCase turns a coding stream's Twitch chat into a regression suite. A viewer sends an input, the app checks the streamer's function against a stated contract, and a reducer looks for a smaller example of the same wrong answer. The streamer fixes the function and keeps both examples as runnable tests.
+
+[App](https://crowdcase.abhinav-0905.chatgpt.site) · [Source](https://github.com/Abhinav0905/crowdcase-twitchcon)
 
 ## The problem
 
@@ -66,9 +70,13 @@ npm test
 npm run test:browser
 ```
 
-On macOS the browser suite uses installed Google Chrome. On Linux, run `npx playwright install chromium --with-deps` first. The checked build has **16 Node tests and 6 browser scenarios**. See [validation notes](docs/validation.md) for what those checks establish.
+On macOS the browser suite uses installed Google Chrome. On Linux, run `npx playwright install chromium --with-deps` first. The checked build has **17 Node tests and 6 browser scenarios**. See [validation notes](docs/validation.md) for what those checks establish.
 
 A real message from `kumarabhinav0905` reached the app on November 2, 2026, at 17:14 UTC. It produced the expected wrong answer, reduced to `[2,10]` and reached a separate browser display. This was a one-person integration check, not a public audience study or live broadcast.
+
+![The saved real Twitch contribution after its fix](docs/images/stream-display.png)
+
+The display above reopens the verified Twitch case after applying the fix. Intake is paused.
 
 ## Limits and data
 

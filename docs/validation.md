@@ -4,7 +4,7 @@ Checked locally on November 2, 2026. Node 26.6.0; Google Chrome on macOS.
 
 ## Automated checks
 
-`npm test`: 16 passing tests.
+`npm test`: 17 passing tests.
 
 - Numeric sort failure reduces to `[2,10]`; both examples pass the corrected function.
 - Distinct runner-up handles duplicates, empty and singleton arrays and negative values.

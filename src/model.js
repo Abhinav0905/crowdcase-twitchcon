@@ -14,13 +14,18 @@ export function addResult(workspace, {input, result, contributor, source, messag
     record.contributors = record.contributors.slice(0,20);
     if (source === 'twitch' && messageId && !record.messageIds.includes(messageId)) record.messageIds.push(messageId);
     record.messageIds = record.messageIds.slice(-20);
+    if (!record.reduction && result.reduction) {
+      record.reduction = result.reduction;
+      record.reductionVersion = workspace.version;
+      record.reducedCurrent = {status:'fail', input:result.reduction.input, expected:result.reduction.expected, actual:result.reduction.actual};
+    }
     return {record, duplicate:true};
   }
   if (workspace.cases.length >= LIMITS.cases) throw new Error('This challenge has 50 saved cases. Export them before starting a new session.');
   record = { id: crypto.randomUUID(), input:[...input], contributors:[{...contributor,source}],
     messageIds:messageId?[messageId]:[], receivedAt:receivedAt || new Date().toISOString(),
     first:{...result, version:workspace.version}, current:{...result,version:workspace.version},
-    reduction:result.reduction, history:[{version:workspace.version,status:result.status}], source };
+    reduction:result.reduction, reductionVersion:result.reduction?workspace.version:null, history:[{version:workspace.version,status:result.status}], source };
   workspace.cases.unshift(record); workspace.selected = record.id;
   return {record, duplicate:false};
 }

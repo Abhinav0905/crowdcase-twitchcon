@@ -67,6 +67,11 @@ function addResult(workspace, { input, result, contributor, source, messageId, r
     record.contributors = record.contributors.slice(0, 20);
     if (source === "twitch" && messageId && !record.messageIds.includes(messageId)) record.messageIds.push(messageId);
     record.messageIds = record.messageIds.slice(-20);
+    if (!record.reduction && result.reduction) {
+      record.reduction = result.reduction;
+      record.reductionVersion = workspace.version;
+      record.reducedCurrent = { status: "fail", input: result.reduction.input, expected: result.reduction.expected, actual: result.reduction.actual };
+    }
     return { record, duplicate: true };
   }
   if (workspace.cases.length >= LIMITS.cases) throw new Error("This challenge has 50 saved cases. Export them before starting a new session.");
@@ -79,6 +84,7 @@ function addResult(workspace, { input, result, contributor, source, messageId, r
     first: { ...result, version: workspace.version },
     current: { ...result, version: workspace.version },
     reduction: result.reduction,
+    reductionVersion: result.reduction ? workspace.version : null,
     history: [{ version: workspace.version, status: result.status }],
     source
   };
@@ -263,7 +269,7 @@ function resultMarkup(record, compact = false) {
   return `<div class="case-credit"><span class="tag neutral">${sourceLabel(record)}</span><span>Case by <strong>${credit}</strong></span></div>
   <div class="case-input"><span class="label">ORIGINAL INPUT \xB7 KEPT IN THE SUITE</span><code>${escape(format(record.input))}</code></div>
   ${result.status === "error" ? `<div class="case-error"><strong>Execution stopped.</strong><p>${escape(result.error)}</p><span>This is not a wrong-answer result.</span></div>` : `<div class="output-compare"><div class="output-cell ${result.status}"><span class="label">ACTUAL \xB7 VERSION ${result.version}</span><code>${escape(format(result.actual))}</code></div><div class="output-cell"><span class="label">EXPECTED BY THE CONTRACT</span><code>${escape(format(result.expected))}</code></div></div>`}
-  ${reduction ? `<div class="reduction"><div class="reduction-head"><h4>${record.reducedCurrent?.status === "pass" ? "The smaller case passes too." : record.reducedCurrent?.status === "fail" && result.status === "pass" ? "This smaller case still fails." : "Less noise. Same mistake."}</h4><span class="tag neutral">${record.input.length} \u2192 ${reduction.input.length} ITEMS</span></div><div class="reduced-numbers">${reduction.input.length ? reduction.input.map((n) => `<span class="number">${n}</span>`).join("") : '<span class="number">[ ]</span>'}</div><p class="subtle">Reduced from the original wrong answer on version ${record.first.version}. ${reduction.exhausted ? "The reduction budget was reached." : "No single remaining item could be removed while keeping a wrong answer."} This is not a claim of global minimality.</p>${record.reducedCurrent ? `<p class="result-caption">Reduced case on v${result.version}: <strong>${record.reducedCurrent.status.toUpperCase()}</strong>${record.reducedCurrent.status === "error" ? " \xB7 Execution could not complete." : " \xB7 Actual " + escape(format(record.reducedCurrent.actual)) + " \xB7 Expected " + escape(format(record.reducedCurrent.expected))}</p>` : ""}</div>` : result.status === "pass" ? '<p class="result-caption">This input matches the selected contract. Other inputs may still expose a bug.</p>' : ""}
+  ${reduction ? `<div class="reduction"><div class="reduction-head"><h4>${record.reducedCurrent?.status === "pass" ? "The smaller case passes too." : record.reducedCurrent?.status === "fail" && result.status === "pass" ? "This smaller case still fails." : "Less noise. Same mistake."}</h4><span class="tag neutral">${record.input.length} \u2192 ${reduction.input.length} ITEMS</span></div><div class="reduced-numbers">${reduction.input.length ? reduction.input.map((n) => `<span class="number">${n}</span>`).join("") : '<span class="number">[ ]</span>'}</div><p class="subtle">Reduced from the original wrong answer on version ${record.reductionVersion || record.first.version}. ${reduction.exhausted ? "The reduction budget was reached." : "No single remaining item could be removed while keeping a wrong answer."} This is not a claim of global minimality.</p>${record.reducedCurrent ? `<p class="result-caption">Reduced case on v${result.version}: <strong>${record.reducedCurrent.status.toUpperCase()}</strong>${record.reducedCurrent.status === "error" ? " \xB7 Execution could not complete." : " \xB7 Actual " + escape(format(record.reducedCurrent.actual)) + " \xB7 Expected " + escape(format(record.reducedCurrent.expected))}</p>` : ""}</div>` : result.status === "pass" ? '<p class="result-caption">This input matches the selected contract. Other inputs may still expose a bug.</p>' : ""}
   ${compact ? "" : history}`;
 }
 var params = new URLSearchParams(location.search);

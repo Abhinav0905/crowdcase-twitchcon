@@ -27,6 +27,15 @@ test('matching Twitch and practice contributions retain distinct provenance',()=
   assert.deepEqual(w.cases[0].messageIds,['real-id']);
   assert.equal(exportPacket(w,'example').implementations[0].source,CONTRACTS.sort.starter);
 });
+test('a previously passing input can gain a reduction after a regression',()=>{
+  const w=freshWorkspace('sort');w.code=CONTRACTS.sort.fix;
+  addResult(w,{...entry,result:{status:'pass',expected:[2,7,10,30],actual:[2,7,10,30],reduction:null}});
+  applySuite(w,CONTRACTS.sort.starter,[{status:'fail',expected:[2,7,10,30],actual:[10,2,30,7]}]);
+  addResult(w,{...entry,source:'twitch',messageId:'new-case',contributor:{id:'twitch:42',name:'Viewer'}});
+  assert.equal(w.cases.length,1);assert.equal(w.cases[0].first.status,'pass');
+  assert.deepEqual(w.cases[0].reduction.input,[2,10]);assert.equal(w.cases[0].reductionVersion,2);
+  assert.equal(recordStatus(w.cases[0]),'fail');
+});
 test('exported Node suite fails starter and passes fixed implementation independently',async()=>{
   const dir=await mkdtemp(join(tmpdir(),'crowdcase-export-'));
   const env={...process.env};delete env.NODE_TEST_CONTEXT;
