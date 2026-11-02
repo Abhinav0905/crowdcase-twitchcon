@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'./test/browser',workers:2,timeout:30000,use:{baseURL:'http://127.0.0.1:8782',viewport:{width:1440,height:1000},launchOptions:process.platform==='darwin'?{executablePath:'/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'}:{}},webServer:{command:'node server.mjs',url:'http://127.0.0.1:8782',reuseExistingServer:true}});

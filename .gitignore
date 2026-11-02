@@ -1,0 +1,10 @@
+node_modules/
+artifacts/
+submission/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+.DS_Store
+.devpost-hackathon-state.json
